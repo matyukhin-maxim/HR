@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 namespace HelperLib.Models {
     public class Salesman : IGroup {
-        public int YearRate => 1;
-        public int MaxRate => 35;
+        public double YearRate => 0.01;
+        public double MaxRate => 0.35;
 
         public List<PersonModel> Dependents { get; set; } = new List<PersonModel>();
 

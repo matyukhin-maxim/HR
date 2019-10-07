@@ -2,9 +2,8 @@
 
 namespace HelperLib.Models {
     public class Manager : IGroup {
-        public int YearRate => throw new System.NotImplementedException();
-
-        public int MaxRate => throw new System.NotImplementedException();
+        public double YearRate => 0.05;
+        public double MaxRate => 0.40;
 
         public List<PersonModel> Dependents { get; set; } = new List<PersonModel>();
 
