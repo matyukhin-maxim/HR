@@ -4,11 +4,13 @@ using HelperLib.Models;
 
 namespace HelperLib {
     public interface IGroup {
-        double YearRate { get; }
-        double MaxRate { get; }
-        //double SalaryDependPercent { get; }
+        int Id { get; set; }
+        string Name { get; set; }
 
-        List<PersonModel> Dependents { get; set; }
-        bool AddDependent(PersonModel p);
+        double YearCoeff { get; set; }
+        double YearCoeffLimit { get; set; }
+        double BonusPercent { get; set; }
+
+        double CalculateSalary(PersonModel PersonId, DateTime onDate);
     }
 }
