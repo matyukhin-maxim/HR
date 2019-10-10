@@ -22,7 +22,8 @@ namespace HelperLib.Models {
             // if person hired later than calulate date - his salary is none
             if (onDate > Person.HireDate) {
 
-                result = Person.BaseRate + (Person.BaseRate * Math.Min(years * YearCoeff, YearCoeffLimit));
+                result = Person.BaseRate + 
+                         (Person.BaseRate * 100 * Math.Min(years * YearCoeff, YearCoeffLimit));
             }
 
             //save to cache

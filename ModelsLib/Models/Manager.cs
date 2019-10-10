@@ -39,7 +39,7 @@ namespace HelperLib.Models {
                 }
 
                 result = Person.BaseRate +
-                         (Person.BaseRate * Math.Min(years * YearCoeff, YearCoeffLimit)) +
+                         (Person.BaseRate * 100 * Math.Min(years * YearCoeff, YearCoeffLimit)) +
                          total * BonusPercent;
             }
 

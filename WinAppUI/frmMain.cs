@@ -82,6 +82,8 @@ namespace WinAppUI {
 
         private void btnCalculate_Click(object sender, EventArgs e) {
 
+            Routine.SalaryCache.Clear();
+
             // if person don't select -> exit
             if (!(lbStaff.SelectedItem is PersonModel p)) return;
 
