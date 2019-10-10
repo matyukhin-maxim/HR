@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -42,7 +43,16 @@ namespace WinAppUI {
 
         private void lbStaff_SelectedIndexChanged(object sender, EventArgs e) {
 
+            btnDelete.Enabled = false;
+            btnSaveEmployee.Enabled = false;
+            btnCreateNew.Enabled = true;
+
             if (!(lbStaff.SelectedItem is PersonModel p)) return;
+
+            btnDelete.Enabled = true;
+            btnDelete.Text = "Удалить";
+            btnSaveEmployee.Enabled = true;
+
 
             cbGroup.SelectedValue = p.GroupId;
             tbName.Text = p.FullName;
@@ -60,7 +70,7 @@ namespace WinAppUI {
         private void tbRate_TextChanged(object sender, EventArgs e) {
 
             Regex r = new Regex(@"^\d+[\.,]{0,1}\d*$");
-            if (r.Match(tbRate.Text).Success) {
+            if (tbRate.Text.Length == 0 || r.Match(tbRate.Text).Success) {
 
                 prevValue = tbRate.Text;
             }
@@ -90,6 +100,65 @@ namespace WinAppUI {
             
             // clear precalculated salary cache
             Routine.SalaryCache.Clear();
+        }
+
+        private void btnSaveEmployee_Click(object sender, EventArgs e) {
+
+            var p = (PersonModel) lbStaff.SelectedItem ?? new PersonModel();
+
+            // get param from form
+            p.GroupId = ((IGroup) cbGroup.SelectedItem).Id;
+            p.BaseRate = double.TryParse(tbRate.Text.Replace(',', '.'), 
+                         NumberStyles.Any, CultureInfo.InvariantCulture, out var rate)
+                ? rate
+                : 0.0;
+            p.FullName = tbName.Text.Trim();
+            p.HireDate = dpHireDate.Value;
+
+            bool ok = SqliteDataAccess.SavePerson(p);
+
+            ReloadStaffList(null, e);
+        }
+
+        private void btnCreateNew_Click(object sender, EventArgs e) {
+
+            lbStaff.SelectedItem = null;
+
+            btnCreateNew.Enabled = false;
+            btnDelete.Enabled = true;
+            btnSaveEmployee.Enabled = true;
+            btnDelete.Text = "Отмена";
+
+            foreach (Control ctrl in tabPage1.Controls) {
+
+                switch (ctrl) {
+                    case TextBox tb:
+                        tb.Text = "";
+                        break;
+                    case DateTimePicker dp:
+                        dp.Value = DateTime.Now;
+                        break;
+                    case ComboBox cb:
+                        cb.SelectedIndex = 0;
+                        break;
+                }
+            }
+        }
+
+        private void frmMain_Load(object sender, EventArgs e) {
+
+            ReloadStaffList(null, e);
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e) {
+
+            if (sender is Button btn && btn.Text.Equals("Удалить")) {
+
+                var p = (PersonModel) lbStaff.SelectedItem;
+                if (p != null) SqliteDataAccess.DeletePersonal(p);
+            } 
+
+            ReloadStaffList(null, e);
         }
     }
 }

@@ -43,6 +43,9 @@
             this.tbSalaryPerson = new System.Windows.Forms.TextBox();
             this.dpCalcDate = new System.Windows.Forms.DateTimePicker();
             this.tlCalcDate = new System.Windows.Forms.Label();
+            this.btnSaveEmployee = new System.Windows.Forms.Button();
+            this.btnCreateNew = new System.Windows.Forms.Button();
+            this.btnDelete = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -154,6 +157,9 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.btnDelete);
+            this.tabPage1.Controls.Add(this.btnCreateNew);
+            this.tabPage1.Controls.Add(this.btnSaveEmployee);
             this.tabPage1.Controls.Add(this.dpHireDate);
             this.tabPage1.Controls.Add(this.tlName);
             this.tabPage1.Controls.Add(this.tbRate);
@@ -252,6 +258,36 @@
             this.tlCalcDate.Text = "Расчет на дату :";
             this.tlCalcDate.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // btnSaveEmployee
+            // 
+            this.btnSaveEmployee.Location = new System.Drawing.Point(6, 183);
+            this.btnSaveEmployee.Name = "btnSaveEmployee";
+            this.btnSaveEmployee.Size = new System.Drawing.Size(121, 23);
+            this.btnSaveEmployee.TabIndex = 6;
+            this.btnSaveEmployee.Text = "Сохранить";
+            this.btnSaveEmployee.UseVisualStyleBackColor = true;
+            this.btnSaveEmployee.Click += new System.EventHandler(this.btnSaveEmployee_Click);
+            // 
+            // btnCreateNew
+            // 
+            this.btnCreateNew.Location = new System.Drawing.Point(133, 183);
+            this.btnCreateNew.Name = "btnCreateNew";
+            this.btnCreateNew.Size = new System.Drawing.Size(118, 23);
+            this.btnCreateNew.TabIndex = 6;
+            this.btnCreateNew.Text = "Добавить";
+            this.btnCreateNew.UseVisualStyleBackColor = true;
+            this.btnCreateNew.Click += new System.EventHandler(this.btnCreateNew_Click);
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.Location = new System.Drawing.Point(257, 183);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(120, 23);
+            this.btnDelete.TabIndex = 6;
+            this.btnDelete.Text = "Удалить";
+            this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -262,6 +298,7 @@
             this.Controls.Add(this.btnUpdateList);
             this.Name = "frmMain";
             this.Text = "HR Calculator 4000";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
@@ -294,6 +331,9 @@
         private System.Windows.Forms.Button btnCalculate;
         private System.Windows.Forms.Label tlCalcPerson;
         private System.Windows.Forms.TextBox tbSalaryPerson;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnCreateNew;
+        private System.Windows.Forms.Button btnSaveEmployee;
     }
 }
 

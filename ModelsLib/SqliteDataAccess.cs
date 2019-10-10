@@ -90,5 +90,54 @@ namespace HelperLib {
 
             return res;
         }
+
+        public static bool SavePerson(PersonModel employee) {
+
+            try {
+
+                using (IDbConnection cn = new SQLiteConnection(GetConnectionString())) {
+
+                    var sql = employee.Id > 0
+                        ? @"update personal set 
+                            FullName = @FullName, 
+                            BaseRate = @BaseRate, 
+                            HireDate = @HireDate, 
+                            GroupId = @GroupId 
+                            where Id = @Id"
+                        : @"insert into personal (FullName, BaseRate, HireDate, GroupId)
+                            values (@FullName, @BaseRate, @HireDate, @GroupId)";
+
+                    return cn.Execute(sql, employee) > 0;
+                }
+            }
+            catch (Exception e) {
+
+                Debug.WriteLine(e.Message);
+            }
+
+            return false;
+        }
+
+        public static void DeletePersonal(PersonModel employee) {
+
+            try {
+
+                using (IDbConnection cn = new SQLiteConnection(GetConnectionString())) {
+
+                    cn.Open();
+                    var tr = cn.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cn.Execute("delete from relations where person_id = @Id or boss_id = @Id", employee, tr);
+                    cn.Execute("delete from personal where Id = @Id", employee, tr);
+
+                    tr.Commit();
+                    // cascade fk don't remove record from 'relations' table [probably bug]
+                }
+            }
+            catch (Exception e) {
+
+                //Debug.WriteLine(e.Message);
+                Debug.WriteLine(e.ToString());
+            }
+        }
     }
 }
