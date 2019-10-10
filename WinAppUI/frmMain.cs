@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HelperLib;
@@ -13,61 +14,82 @@ using HelperLib.Models;
 
 namespace WinAppUI {
     public partial class frmMain : Form {
-
-        Dictionary<int, PersonModel> personalDictionary = new Dictionary<int, PersonModel>();
+        private readonly List<PersonModel> personalList = new List<PersonModel>();
+        private string prevValue = string.Empty;
 
         public frmMain() {
             InitializeComponent();
         }
 
-        private void LoadPersonal(object sender, EventArgs e) {
+        private void ReloadStaffList(object sender, EventArgs e) {
 
-            var y = new DateTime(2019, 10, 1);
-            var x = DateTime.Now;
-            Console.WriteLine(x.AddYears(1).AddDays(-1));
+            var groups = SqliteDataAccess.GetAllGroups();
+            cbGroup.DataSource = null;
+            cbGroup.DataSource = groups;
+            cbGroup.DisplayMember = "Name";
+            cbGroup.ValueMember = "Id";
 
-            personalDictionary.Clear();
-            personalDictionary = SqliteDataAccess.GetAllPersonal();
-            foreach (var pair in personalDictionary) {
-                
-                // Заполним группу по id
-                switch (pair.Value.GroupId) {
-                    case 1:
-                        pair.Value.Group = new Employee();
-                        break;
-                    case 2:
-                        pair.Value.Group = new Manager();
-                        break;
-                    case 3:
-                        pair.Value.Group = new Salesman();
-                        break;
-                    default:
-                        Debug.WriteLine("Unknown group id found");
-                        break;
-                }
+            personalList.Clear();
+            var lst = SqliteDataAccess.GetAllPersonal();
+            if (lst != null) personalList.AddRange(lst);
 
-                pair.Value.CalculateSalary(DateTime.Now);
+            lbStaff.DataSource = null;
+            lbStaff.DataSource = personalList;
+            lbStaff.DisplayMember = "FullName";
+
+            prevValue = "0";
+        }
+
+        private void lbStaff_SelectedIndexChanged(object sender, EventArgs e) {
+
+            if (!(lbStaff.SelectedItem is PersonModel p)) return;
+
+            cbGroup.SelectedValue = p.GroupId;
+            tbName.Text = p.FullName;
+            tbRate.Text = p.BaseRate.ToString("F2");
+            dpHireDate.Value = p.HireDate;
+
+            lbRelations.DataSource = null;
+            lbRelations.DataSource = SqliteDataAccess.GetDependentPersonal(p.Id);
+            lbRelations.DisplayMember = "FullName";
+
+            dpCalcDate.Value = DateTime.Now;
+            tbSalaryPerson.Text = 0.ToString("F2");
+        }
+
+        private void tbRate_TextChanged(object sender, EventArgs e) {
+
+            Regex r = new Regex(@"^\d+[\.,]{0,1}\d*$");
+            if (r.Match(tbRate.Text).Success) {
+
+                prevValue = tbRate.Text;
+            }
+            else {
+                tbRate.Text = prevValue;
+                tbRate.SelectionStart = prevValue.Length;
+            }
+        }
+
+        private void btnCalculate_Click(object sender, EventArgs e) {
+
+            // if person don't select -> exit
+            if (!(lbStaff.SelectedItem is PersonModel p)) return;
+
+            var totalP = 0.0;
+
+            // find person group
+            if (cbGroup.SelectedItem is IGroup grp) {
+
+                totalP = grp.CalculateSalary(p, dpCalcDate.Value);
             }
 
-            // Получим список "связей" между сотрудниками
-            var relationship = SqliteDataAccess.GetRelationship();
-            foreach (var relationModel in relationship) {
+            tbSalaryPerson.Text = totalP.ToString("F2");
+        }
 
-                // Благодаря foreign key можно не боятся что сотрудник не будет найден
-                personalDictionary[relationModel.Boss] = personalDictionary[relationModel.Boss];
-
-                try {
-
-                    // Добавляем подчиненного если группа определена
-                    var grp = personalDictionary[relationModel.Boss].Group;
-                    grp?.AddDependent(personalDictionary[relationModel.Person]);
-                }
-                catch (Exception ex) {
-
-                    // Ошибка будет при попытке добавить подчиненного к Employee
-                    Debug.WriteLine(ex.Message);
-                }
-            }
+        private void dpCalcDate_ValueChanged(object sender, EventArgs e) {
+            
+            // clear precalculated salary cache
+            Routine.SalaryCache.Clear();
         }
     }
 }
